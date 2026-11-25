@@ -1,0 +1,238 @@
+/* Copyright (c) 2026 Drew Gislason */
+/* Palette taken from Viking Sudoku (itself from Drew's Hnefatafl game) */
+:root {
+  --page-bg: #1a2332;
+  --board-cell: #f2f0e8;
+  --board-line: #1a1a1a;
+  --chrome-bg: #0a0a0a;
+  --chrome-text: #ffffff;
+  --given-bg: #e8d9a8;
+  --rune-accent: #e8e0d0;
+  --selected: #b0b0b0;
+  --legal: #c8e6c9;
+  --focus: #c9b896;
+  --conflict: #922b21;
+  --btn-bg: #2a3548;
+  --btn-border: #8aa0b8;
+  --btn-text: #f0f4f8;
+  --status-bg: #121820;
+  --status-text: #e8eef5;
+  --panel-bg: #0f141c;
+  --panel-text: #c8d0da;
+  --panel-border: #3a4558;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-rune: "Noto Sans Runic", "Segoe UI Historic", "Junicode", "Segoe UI Symbol", "DejaVu Sans", serif;
+  --wood-light: #f6eedc;
+  --wood-mid: #e8d9a8;
+  --wood-deep: #d4bc86;
+  --wood-edge: #6a522c;
+  --wood-edge-dark: #3d2e16;
+  --carve: #1a140c;
+}
+
+@font-face {
+  font-family: "Noto Sans Runic";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/NotoSansRunic-Regular.ttf") format("truetype");
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--page-bg); color: var(--chrome-text); font-family: var(--font-ui); }
+body { display: flex; justify-content: center; }
+#app { width: 100%; max-width: 1100px; padding: .75rem .6rem 1.5rem; display: flex; flex-direction: column; gap: .65rem; }
+.runes { font-family: var(--font-rune); }
+.frame { background: var(--chrome-bg); border: 2px solid #000; box-shadow: 0 4px 18px rgba(0,0,0,.55); padding: 0 12px 12px; }
+.title { display: flex; flex-direction: column; align-items: center; padding: 8px 0; line-height: 1.1; }
+.title .runes {
+  font-size: 2rem;
+  color: var(--rune-accent);
+  display: block;
+  /* SVG wordmark (the same straight-cut paths as the tiles, including full-
+     height Jera). Real layout width, so it centers without the old 4.9em
+     workaround for Noto Runic's zero-width metrics in WebKit. */
+  width: auto;
+  line-height: 0;
+  padding-left: 0;
+  margin-right: 0;
+}
+.title .runes svg {
+  display: block;
+  height: .90em;
+  width: auto;
+  margin: .12em auto .08em;
+  overflow: visible;
+}
+.title .sub { font-size: .8rem; letter-spacing: .15em; margin-right: -0.15em; color: #8a96a8; }
+
+.board-wrap { position: relative; width: 100%; margin: 0 auto; }
+.board { position: relative; margin: 0 auto; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+
+/* Wood tile. Every dimension is a whole pixel count set in JS, so rows and stacks are exact straight lines. */
+.mj {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+}
+.mj:focus { outline: none; }
+.mj > span { display: block; pointer-events: none; }
+.mj-shadow {
+  position: absolute;
+  left: 0; top: 0;
+  width: var(--tw); height: var(--th);
+  background: transparent;
+  border-radius: 2px;
+  /* Soft drop shadow — not a solid slab — so height reads without looking like extra tiles. */
+  box-shadow: var(--lift, 3px) var(--lift, 3px) calc(var(--lift, 3px) * 0.8) rgba(0,0,0,.55);
+}
+.mj-east {
+  position: absolute;
+  left: var(--tw); top: 0;
+  width: var(--e); height: calc(var(--th) + var(--e));
+  background: #6f5329;
+  clip-path: polygon(0 0, 100% var(--e), 100% 100%, 0 calc(100% - var(--e)));
+}
+.mj-south {
+  position: absolute;
+  left: 0; top: var(--th);
+  width: calc(var(--tw) + var(--e)); height: var(--e);
+  background: #54401f;
+  clip-path: polygon(0 0, calc(100% - var(--e)) 0, 100% 100%, var(--e) 100%);
+}
+.mj-face {
+  position: absolute;
+  left: 0; top: 0;
+  width: var(--tw); height: var(--th);
+  border-radius: 2px;
+  color: var(--carve);
+  background-color: var(--wood-mid);
+  background-image:
+    linear-gradient(165deg, rgba(255,250,232,.42) 0%, rgba(240,220,170,.08) 50%, rgba(190,150,85,.22) 100%),
+    url("images/wood-grain.jpg");
+  background-size: 100% 100%, var(--tex, 220px) var(--tex, 220px);
+  background-position: 0 0, var(--bx, 0px) var(--by, 0px);
+  border: 1px solid #8a7040;
+  border-top-color: #efe4c6;
+  border-left-color: #ead9ad;
+  border-right-color: #7a6234;
+  border-bottom-color: #6a522c;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.mj-face { filter: brightness(var(--br, 1)); }
+/* z0 matches the close-up rune tiles (slightly lifted brightness + the same drop shadow). Higher layers stay a touch brighter so stacks still read. */
+.mj.z0 { --br: 1.05; }
+.mj.z1 { --br: 1.09; }
+.mj.z2 { --br: 1.12; }
+.mj.z3 { --br: 1.15; }
+.mj.z4 { --br: 1.18; }
+.mj-icon { display: block; width: var(--icon); height: var(--icon); flex: 0 0 auto; color: inherit; }
+.mj-icon svg { display: block; width: 100%; height: 100%; }
+.mj-name {
+  font-family: var(--font-ui);
+  font-size: var(--name, 11px);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #3a2c16;
+  margin-top: 3px;
+  line-height: 1;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+}
+.mj.named .mj-face { padding: 5% 1px 6%; justify-content: center; }
+.mj.named .mj-icon { flex: 0 0 auto; }
+.mj.sel .mj-face { outline: 3px solid var(--focus); outline-offset: 1px; }
+.mj.gone { visibility: hidden; pointer-events: none; }
+.mj:not(.gone):hover .mj-face { filter: brightness(calc(var(--br, 1) * 1.06)); }
+
+/* Set tints: same real grain, only a colour wash differs, so a set is easy to spot. */
+.mj.kind-god .mj-face    { background-image: linear-gradient(165deg, rgba(255,235,190,.35) 0%, rgba(225,175,90,.30) 55%, rgba(185,130,50,.38) 100%), url("images/wood-grain.jpg"); }
+.mj.kind-season .mj-face { background-image: linear-gradient(165deg, rgba(225,245,200,.40) 0%, rgba(150,200,110,.26) 55%, rgba(95,150,70,.34) 100%), url("images/wood-grain.jpg"); }
+.mj.kind-norn .mj-face   { background-image: linear-gradient(165deg, rgba(235,222,252,.45) 0%, rgba(180,155,225,.34) 55%, rgba(130,100,185,.40) 100%), url("images/wood-grain.jpg"); }
+.mj.kind-dragon .mj-face { background-image: linear-gradient(165deg, rgba(255,225,220,.40) 0%, rgba(230,160,150,.28) 55%, rgba(190,110,100,.34) 100%), url("images/wood-grain.jpg"); }
+.mj.kind-dir .mj-face    { background-image: linear-gradient(165deg, rgba(225,238,250,.45) 0%, rgba(165,195,225,.28) 55%, rgba(115,150,190,.34) 100%), url("images/wood-grain.jpg"); }
+.mj.kind-ship .mj-face   { background-image: linear-gradient(165deg, rgba(215,245,240,.42) 0%, rgba(140,205,195,.28) 55%, rgba(85,150,145,.34) 100%), url("images/wood-grain.jpg"); }
+
+.controls { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; }
+.btn { background: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--btn-border); border-radius: 6px; padding: .45rem .9rem; font: inherit; font-size: .9rem; cursor: pointer; white-space: nowrap; }
+.btn.active { outline: 2px solid var(--focus); background: #3a4558; }
+.btn:disabled { opacity: .45; cursor: default; }
+.status { background: var(--status-bg); color: var(--status-text); border: 1px solid var(--panel-border); border-radius: 6px; padding: .5rem .75rem; text-align: center; font-size: .95rem; }
+.status.win { color: #fff; background: #2f5d34; border-color: var(--legal); font-weight: 700; font-size: 1.1rem; }
+.rules { background: var(--panel-bg); color: var(--panel-text); border: 1px solid var(--panel-border); border-radius: 6px; padding: .5rem 1rem; font-size: .9rem; }
+.rules h2 { margin: .2rem 0; font-size: 1rem; color: var(--rune-accent); }
+.rules ol { margin: .3rem 0 .2rem; padding-left: 1.35rem; }
+.rules li { margin: .4rem 0; line-height: 1.4; }
+.rules li strong { color: var(--rune-accent); font-weight: 700; }
+
+/* Close-up pages for the approval thumbnails */
+.closeup { width: 100%; max-width: 1100px; padding: .5rem .6rem 1rem; margin: 0 auto; }
+.closeup[hidden] { display: none; }
+body.closeup-mode #app { display: none; }
+.set-row { padding: 6px 4px 2px; }
+.set-label { color: var(--rune-accent); font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; padding: 6px 6px 2px; }
+.set-label span { color: #8a96a8; letter-spacing: .04em; text-transform: none; margin-left: .6rem; }
+.set-tiles { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: flex-start; padding: 8px 6px 10px; }
+.set-tiles.runes24 { justify-content: center; gap: 12px 14px; padding: 14px 6px; }
+.set-tiles.norns-close { justify-content: center; gap: 24px 36px; padding: 22px 10px 16px; }
+.closeup-note { color: #8a96a8; font-size: .9rem; text-align: center; margin: .25rem 8px .5rem; }
+
+@media (max-width: 520px) {
+  #app { padding: .5rem .3rem 1.25rem; }
+  .frame { padding: 0 6px 8px; }
+  /* Four buttons stay on one row on a 390px phone. */
+  .controls { flex-wrap: nowrap; gap: .28rem; }
+  .btn { padding: .4rem .42rem; font-size: .82rem; }
+}
+@media (min-width: 800px) {
+  #app { padding: 1rem 1.25rem 2rem; }
+  .title .runes { font-size: 2.3rem; }
+}
+
+/* Short viewports: a compact title leaves more height for the board. */
+#app.compact { padding-top: .45rem; gap: .4rem; }
+#app.compact .title { padding: 4px 0 2px; }
+#app.compact .title .runes { font-size: 1.65rem; }
+#app.compact .title .runes svg { margin: .06em auto .04em; }
+#app.compact .title .sub { font-size: .7rem; }
+#app.compact .frame { padding-bottom: 8px; }
+@media (max-width: 520px) {
+  #app.compact { padding-top: .35rem; }
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px 8px;
+  padding: 12px 8px 16px;
+  justify-items: center;
+}
+.compare-cell { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; }
+.compare-ref-img {
+  display: block;
+  width: 96px;
+  height: 125px;
+  object-fit: contain;
+  image-rendering: auto;
+}
+.compare-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #8a96a8;
+}
+@media (max-width: 900px) {
+  .compare-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}

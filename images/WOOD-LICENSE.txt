@@ -1,0 +1,4 @@
+wood-grain.jpg is derived from "Wood 050" (Wood050_1K-JPG_Color.jpg) from ambientCG.com,
+licensed CC0 1.0 Universal (public domain): https://ambientcg.com/a/Wood050
+Modified: rotated 90 degrees, resized to 512x512, desaturated, contrast-reduced and
+tone-shifted to a pale maple/birch color. No attribution required.

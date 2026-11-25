@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 Drew Gislason -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viking Mahjong — rune mahjong</title>
+<meta name="description" content="Viking Mahjong: mahjong solitaire played with Elder Futhark runes, gods, directions and Norns.">
+<meta name="theme-color" content="#1a2332">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="frame">
+    <div class="title">
+      <span class="runes" aria-label="Mahjong"><svg viewBox="0 0 232 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2.2"><path d="M5.2 36 5.2 4M26.8 36 26.8 4M5.2 4 26.8 25M26.8 4 5.2 25"/><g transform="translate(40,0)"><path d="M12.2 36 12.2 4M12.2 4 21 9.8M12.2 13.1 21 17"/></g><g transform="translate(80,0)"><path d="M6 36 6 4M26 36 26 4M6 15.2 26 24.6"/></g><g transform="translate(120,0)"><path d="M14.5 4 3 15 12.1 25.4M19.9 14.6 29 25 17.5 36"/></g><g transform="translate(160,0)"><path d="M15.9 4 7 15.3 24.9 36M15.9 4 25 15.3 7.1 36"/></g><g transform="translate(200,0)"><path d="M7.3 4 24.9 19.4M24.7 4 7.1 19.4M7.3 36 24.9 19.4M24.7 36 7.1 19.4"/></g></g></svg></span>
+      <span class="sub">VIKING MAHJONG — BY GISLASON</span>
+    </div>
+    <div id="board-wrap" class="board-wrap">
+      <div id="board" class="board" aria-label="Mahjong board"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="newgame">New Game</button>
+    <button class="btn" id="restart">Restart</button>
+    <button class="btn" id="undo" disabled>Undo</button>
+    <button class="btn" id="choosegame">Choose Layout</button>
+  </div>
+  <div id="status" class="status">Select a free tile, then select its match.</div>
+
+  <div class="rules">
+    <h2>Rules</h2>
+    <ol>
+      <li><strong>Goal.</strong> Remove all the tiles from the board.</li>
+      <li><strong>Free tiles.</strong> You may only play a tile that is free. A tile is free when nothing is stacked on top of it, and at least one of its sides is open: no tile immediately on its left, or no tile immediately on its right, or both sides open.</li>
+      <li><strong>What matches.</strong> Two tiles match if they show the same rune, or the same god (there are four identical tiles of each rune and of each god: Odin, Thor, Frigg, Freyr, Tyr, Loki and Hel). Tiles from the same set also match even when their pictures differ — any two of a set is a pair. The five sets are: Seasons (Spring, Summer, Autumn, Winter); Norns (Urd, Verdandi, Skuld, Wyrd); Dragons (Red, Green, Blue, White); Directions (North, South, East, West); and Longships (Oseberg, Gokstad, Ormen, Skuldelev). Each set has its own tint: green, violet, rose, blue-gray and teal.</li>
+      <li><strong>How to play.</strong> Tap or click a free tile to select it, then tap a matching free tile. The pair disappears. If the second tile is not a match, it becomes the new selection instead.</li>
+      <li><strong>Winning — and getting stuck.</strong> You win when the board is clear. You can get stuck if no free matching pair remains. Use Restart to put this deal back, or New Game for a fresh puzzle (every new deal can be solved).</li>
+      <li><strong>Buttons.</strong> New Game deals a new solvable puzzle on the current layout. Restart restores the current deal. Undo puts back the last pair you removed, and can step back through every match. Choose Layout cycles through the six layouts: Turtle, Dragon, Pyramid, Spider, Fortress, Cat.</li>
+      <li><strong>Tip.</strong> Free up long rows and tall stacks early. That opens more tiles for later matches.</li>
+    </ol>
+  </div>
+</div>
+
+<div id="closeup" class="closeup" hidden>
+  <div class="frame">
+    <div class="title">
+      <span class="runes" aria-label="Mahjong"><svg viewBox="0 0 232 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="square" stroke-linejoin="miter" stroke-miterlimit="2.2"><path d="M5.2 36 5.2 4M26.8 36 26.8 4M5.2 4 26.8 25M26.8 4 5.2 25"/><g transform="translate(40,0)"><path d="M12.2 36 12.2 4M12.2 4 21 9.8M12.2 13.1 21 17"/></g><g transform="translate(80,0)"><path d="M6 36 6 4M26 36 26 4M6 15.2 26 24.6"/></g><g transform="translate(120,0)"><path d="M14.5 4 3 15 12.1 25.4M19.9 14.6 29 25 17.5 36"/></g><g transform="translate(160,0)"><path d="M15.9 4 7 15.3 24.9 36M15.9 4 25 15.3 7.1 36"/></g><g transform="translate(200,0)"><path d="M7.3 4 24.9 19.4M24.7 4 7.1 19.4M7.3 36 24.9 19.4M24.7 36 7.1 19.4"/></g></g></svg></span>
+      <span class="sub" id="closeup-sub">TILE CLOSE-UP</span>
+    </div>
+    <div id="closeup-body"></div>
+  </div>
+</div>
+
+<script src="layouts.js"></script>
+<script src="runes.js"></script>
+<script src="emblems.js"></script>
+<script src="mahjong.js"></script>
+</body>
+</html>
